@@ -12,7 +12,9 @@ const Index = () => {
   const [is3DTourOpen, setIs3DTourOpen] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(0);
+  const [currentImage, setCurrentImage] = useState(0);
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([
     { text: 'Здравствуйте! Я помощник Исторического музея Оренбурга. Чем могу помочь?', isUser: false }
   ]);
@@ -115,6 +117,21 @@ const Index = () => {
     }
   ];
 
+  const galleryItems = [
+    { emoji: '🏺', title: 'Древняя керамика', category: 'Археология', era: 'III век до н.э.', description: 'Уникальная керамическая посуда сарматов, найденная при раскопках курганов. Сохранились орнаменты и следы красителей.' },
+    { emoji: '⚔️', title: 'Сарматский меч', category: 'Оружие', era: 'I-II век н.э.', description: 'Железный меч с бронзовой рукоятью. Принадлежал знатному воину-сармату. Длина 90 см, отличная сохранность.' },
+    { emoji: '👑', title: 'Золотая диадема', category: 'Украшения', era: 'IV век до н.э.', description: 'Церемониальное украшение из золота с инкрустацией драгоценными камнями. Вес 320 грамм.' },
+    { emoji: '📜', title: 'Древняя рукопись', category: 'Документы', era: 'XV век', description: 'Рукописная книга на старославянском языке. Пергамент, чернила. Содержит исторические хроники.' },
+    { emoji: '🎭', title: 'Народная маска', category: 'Этнография', era: 'XIX век', description: 'Ритуальная маска башкир, использовалась в обрядовых танцах. Дерево, кожа, натуральные красители.' },
+    { emoji: '🗡️', title: 'Кинжал казака', category: 'Оружие', era: 'XVIII век', description: 'Боевой кинжал оренбургского казака с гравировкой. Сталь, серебро, кожаные ножны.' },
+    { emoji: '💍', title: 'Кольцо княгини', category: 'Украшения', era: 'XVI век', description: 'Золотое кольцо с печатью княжеского рода. Найдено при археологических работах в 1965 году.' },
+    { emoji: '🏛️', title: 'Макет крепости', category: 'Архитектура', era: '1743 год', description: 'Детальный макет Оренбургской крепости по чертежам И. Неплюева. Масштаб 1:500.' },
+    { emoji: '🎨', title: 'Портрет основателя', category: 'Живопись', era: '1831 год', description: 'Портрет основателя музея П.П. Сухтелена. Масло, холст. Работа неизвестного художника.' },
+    { emoji: '🪙', title: 'Монеты Империи', category: 'Нумизматика', era: 'XVIII-XIX век', description: 'Коллекция из 47 серебряных и золотых монет Российской Империи в отличном состоянии.' },
+    { emoji: '📖', title: 'Первая печатная книга', category: 'Библиотека', era: '1850 год', description: 'Первая книга, напечатанная в Оренбургской типографии. "История Оренбургского края".' },
+    { emoji: '🎖️', title: 'Орден Славы', category: 'Награды', era: '1945 год', description: 'Орден Славы III степени оренбуржца-героя Великой Отечественной войны.' }
+  ];
+
   const museumRooms = [
     {
       name: 'Главный зал',
@@ -174,6 +191,7 @@ const Index = () => {
             </div>
             <div className="hidden md:flex gap-6">
               <a href="#exhibitions" className="text-foreground hover:text-primary transition-colors">Экспозиции</a>
+              <a href="#gallery" className="text-foreground hover:text-primary transition-colors">Галерея</a>
               <a href="#history" className="text-foreground hover:text-primary transition-colors">История</a>
               <a href="#visit" className="text-foreground hover:text-primary transition-colors">Посещение</a>
               <a href="#events" className="text-foreground hover:text-primary transition-colors">События</a>
@@ -243,7 +261,47 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="history" className="py-16">
+      <section id="gallery" className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-primary">Галерея экспонатов</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Откройте для себя уникальные артефакты из нашей коллекции
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {galleryItems.map((item, index) => (
+              <Card
+                key={index}
+                className="cursor-pointer hover:shadow-xl transition-all hover:-translate-y-2 group overflow-hidden"
+                onClick={() => {
+                  setCurrentImage(index);
+                  setIsGalleryOpen(true);
+                }}
+              >
+                <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-7xl group-hover:scale-110 transition-transform">
+                  {item.emoji}
+                </div>
+                <CardHeader className="p-3">
+                  <CardTitle className="text-sm leading-tight">{item.title}</CardTitle>
+                  <CardDescription className="text-xs">
+                    <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <p className="text-muted-foreground mb-4">Нажмите на экспонат для полноэкранного просмотра</p>
+            <Button size="lg" variant="outline">
+              <Icon name="Image" className="mr-2" size={20} />
+              Посмотреть всю коллекцию (250К+ экспонатов)
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section id="history" className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -765,6 +823,88 @@ const Index = () => {
               <Button onClick={() => setIsBookingOpen(false)} variant="outline" size="lg">
                 Отмена
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-0">
+          <div className="relative flex-1 bg-black">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center p-8">
+                <div className="text-9xl md:text-[200px] mb-8 animate-fade-in">
+                  {galleryItems[currentImage].emoji}
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
+              onClick={() => setIsGalleryOpen(false)}
+            >
+              <Icon name="X" size={24} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-16 w-16"
+              onClick={() => setCurrentImage((prev) => (prev - 1 + galleryItems.length) % galleryItems.length)}
+            >
+              <Icon name="ChevronLeft" size={32} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-16 w-16"
+              onClick={() => setCurrentImage((prev) => (prev + 1) % galleryItems.length)}
+            >
+              <Icon name="ChevronRight" size={32} />
+            </Button>
+          </div>
+          <div className="bg-card p-6 space-y-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold mb-2">{galleryItems[currentImage].title}</h3>
+                <div className="flex gap-2 mb-3">
+                  <Badge>{galleryItems[currentImage].category}</Badge>
+                  <Badge variant="outline">{galleryItems[currentImage].era}</Badge>
+                </div>
+                <p className="text-muted-foreground">{galleryItems[currentImage].description}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-3 border-t">
+              <div className="text-sm text-muted-foreground">
+                Экспонат {currentImage + 1} из {galleryItems.length}
+              </div>
+              <div className="flex gap-1">
+                {galleryItems.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImage(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentImage ? 'bg-primary' : 'bg-muted hover:bg-muted-foreground'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentImage((prev) => (prev - 1 + galleryItems.length) % galleryItems.length)}
+                >
+                  <Icon name="ChevronLeft" size={16} />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentImage((prev) => (prev + 1) % galleryItems.length)}
+                >
+                  <Icon name="ChevronRight" size={16} />
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
