@@ -9,10 +9,23 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const Index = () => {
   const [isBotOpen, setIsBotOpen] = useState(false);
+  const [is3DTourOpen, setIs3DTourOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [currentRoom, setCurrentRoom] = useState(0);
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([
     { text: 'Здравствуйте! Я помощник Исторического музея Оренбурга. Чем могу помочь?', isUser: false }
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const [bookingData, setBookingData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    time: '',
+    tourType: '',
+    visitors: 1
+  });
 
   const botResponses: Record<string, string> = {
     'время работы': 'Музей работает с 10:00 до 18:00 со вторника по воскресенье. Понедельник — выходной.',
@@ -102,6 +115,51 @@ const Index = () => {
     }
   ];
 
+  const museumRooms = [
+    {
+      name: 'Главный зал',
+      description: 'История основания Оренбурга и развития города',
+      icon: '🏛️',
+      artifacts: 'Документы, карты, портреты основателей'
+    },
+    {
+      name: 'Зал археологии',
+      description: 'Древние поселения и находки эпохи бронзы',
+      icon: '🏺',
+      artifacts: 'Керамика, орудия труда, украшения'
+    },
+    {
+      name: 'Военный зал',
+      description: 'Оренбуржцы в Великой Отечественной войне',
+      icon: '🎖️',
+      artifacts: 'Награды, письма, военная форма'
+    },
+    {
+      name: 'Этнографический зал',
+      description: 'Культура и быт народов Южного Урала',
+      icon: '🎭',
+      artifacts: 'Национальные костюмы, предметы быта'
+    }
+  ];
+
+  const handleBookingSubmit = () => {
+    if (!bookingData.name || !bookingData.email || !bookingData.date || !bookingData.time || !bookingData.tourType) {
+      alert('Пожалуйста, заполните все обязательные поля');
+      return;
+    }
+    alert(`Спасибо, ${bookingData.name}! Ваша заявка на экскурсию принята. Мы свяжемся с вами по email: ${bookingData.email}`);
+    setIsBookingOpen(false);
+    setBookingData({
+      name: '',
+      email: '',
+      phone: '',
+      date: '',
+      time: '',
+      tourType: '',
+      visitors: 1
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card shadow-sm sticky top-0 z-40 backdrop-blur-sm bg-card/95">
@@ -137,13 +195,13 @@ const Index = () => {
               Откройте для себя богатую историю Оренбургского края в старейшем музее региона
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6" onClick={() => setIsBotOpen(true)}>
+              <Button size="lg" className="text-lg px-8 py-6" onClick={() => setIs3DTourOpen(true)}>
+                <Icon name="Maximize2" className="mr-2" size={20} />
+                Виртуальный тур
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6" onClick={() => setIsBotOpen(true)}>
                 <Icon name="MessageCircle" className="mr-2" size={20} />
                 Задать вопрос боту
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-                <Icon name="Ticket" className="mr-2" size={20} />
-                Купить билет
               </Button>
             </div>
           </div>
@@ -175,6 +233,12 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+          <div className="text-center mt-12">
+            <Button size="lg" onClick={() => setIs3DTourOpen(true)} className="px-8 py-6">
+              <Icon name="Maximize2" className="mr-2" size={20} />
+              Начать виртуальный тур по залам
+            </Button>
           </div>
         </div>
       </section>
@@ -274,7 +338,7 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-6" variant="outline">
+                <Button className="w-full mt-6" variant="outline" onClick={() => setIsBookingOpen(true)}>
                   <Icon name="Calendar" className="mr-2" size={18} />
                   Записаться на экскурсию
                 </Button>
@@ -370,6 +434,10 @@ const Index = () => {
                       <div className="text-muted-foreground">info@museum-orenburg.ru</div>
                     </div>
                   </div>
+                  <Button className="w-full mt-4" onClick={() => setIsMapOpen(true)}>
+                    <Icon name="MapPin" className="mr-2" size={18} />
+                    Открыть карту
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -467,6 +535,237 @@ const Index = () => {
           </div>
           <div className="mt-2 text-xs text-muted-foreground">
             Попробуйте спросить: время работы, стоимость, экскурсии, адрес, выставки
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={is3DTourOpen} onOpenChange={setIs3DTourOpen}>
+        <DialogContent className="max-w-4xl h-[700px] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Maximize2" className="text-primary" size={24} />
+              Виртуальный тур по музею
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 flex flex-col">
+            <div className="bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5 rounded-xl flex-1 flex items-center justify-center relative overflow-hidden">
+              <div className="text-9xl mb-8">{museumRooms[currentRoom].icon}</div>
+              <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex flex-col items-center justify-center p-8">
+                <h3 className="text-4xl font-bold text-white mb-4 text-center">{museumRooms[currentRoom].name}</h3>
+                <p className="text-xl text-white/90 mb-4 text-center max-w-xl">{museumRooms[currentRoom].description}</p>
+                <Badge className="text-base px-4 py-2 bg-white/20 backdrop-blur-md text-white border-white/30">
+                  {museumRooms[currentRoom].artifacts}
+                </Badge>
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-6 gap-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setCurrentRoom((prev) => (prev - 1 + museumRooms.length) % museumRooms.length)}
+              >
+                <Icon name="ChevronLeft" className="mr-2" size={20} />
+                Предыдущий зал
+              </Button>
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground mb-2">Зал {currentRoom + 1} из {museumRooms.length}</div>
+                <div className="flex gap-2">
+                  {museumRooms.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-2 h-2 rounded-full ${index === currentRoom ? 'bg-primary' : 'bg-muted'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setCurrentRoom((prev) => (prev + 1) % museumRooms.length)}
+              >
+                Следующий зал
+                <Icon name="ChevronRight" className="ml-2" size={20} />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="MapPin" className="text-primary" size={24} />
+              Как добраться до музея
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-6 space-y-4">
+              <div className="flex items-center justify-center text-8xl mb-4">🗺️</div>
+              <div className="text-center space-y-2">
+                <h4 className="font-bold text-lg">Исторический музей Оренбурга</h4>
+                <p className="text-muted-foreground">г. Оренбург, ул. Советская, 28</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Icon name="Bus" className="text-primary" size={20} />
+                    Общественный транспорт
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm space-y-2">
+                  <p><strong>Автобусы:</strong> №12, №34, №56</p>
+                  <p><strong>Троллейбусы:</strong> №4, №9</p>
+                  <p><strong>Остановка:</strong> "Площадь Ленина"</p>
+                  <p className="text-muted-foreground">5 минут пешком от остановки</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Icon name="Car" className="text-primary" size={20} />
+                    На автомобиле
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm space-y-2">
+                  <p><strong>Парковка:</strong> Есть</p>
+                  <p><strong>Мест:</strong> ~20 машин</p>
+                  <p><strong>Стоимость:</strong> Бесплатно</p>
+                  <p className="text-muted-foreground">Вход со двора здания</p>
+                </CardContent>
+              </Card>
+            </div>
+            <Card className="bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Icon name="Navigation" className="text-primary" size={20} />
+                  Координаты для навигатора
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="font-mono text-sm">51.7727° N, 55.0988° E</p>
+                <div className="flex gap-2 mt-3">
+                  <Button size="sm" variant="outline" className="flex-1">
+                    Открыть в Яндекс.Картах
+                  </Button>
+                  <Button size="sm" variant="outline" className="flex-1">
+                    Открыть в 2ГИС
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Calendar" className="text-primary" size={24} />
+              Записаться на экскурсию
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Ваше имя *</label>
+                <Input
+                  placeholder="Иван Иванов"
+                  value={bookingData.name}
+                  onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email *</label>
+                <Input
+                  type="email"
+                  placeholder="ivan@example.com"
+                  value={bookingData.email}
+                  onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Телефон</label>
+              <Input
+                type="tel"
+                placeholder="+7 (999) 123-45-67"
+                value={bookingData.phone}
+                onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
+              />
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Дата посещения *</label>
+                <Input
+                  type="date"
+                  value={bookingData.date}
+                  onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Время *</label>
+                <select
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={bookingData.time}
+                  onChange={(e) => setBookingData({ ...bookingData, time: e.target.value })}
+                >
+                  <option value="">Выберите время</option>
+                  <option value="11:00">11:00 - Обзорная экскурсия</option>
+                  <option value="13:00">13:00 - История края</option>
+                  <option value="15:00">15:00 - Военная слава</option>
+                  <option value="17:00">17:00 - Детская экскурсия</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Тип экскурсии *</label>
+              <select
+                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={bookingData.tourType}
+                onChange={(e) => setBookingData({ ...bookingData, tourType: e.target.value })}
+              >
+                <option value="">Выберите тип</option>
+                <option value="standard">Стандартная (1.5 часа) - 300₽</option>
+                <option value="extended">Расширенная (2.5 часа) - 500₽</option>
+                <option value="thematic">Тематическая (2 часа) - 400₽</option>
+                <option value="children">Детская (1 час) - 200₽</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Количество человек</label>
+              <Input
+                type="number"
+                min="1"
+                max="30"
+                value={bookingData.visitors}
+                onChange={(e) => setBookingData({ ...bookingData, visitors: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+            <Card className="bg-muted">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" className="text-primary mt-0.5" size={18} />
+                  <p className="text-sm text-muted-foreground">
+                    После отправки заявки мы свяжемся с вами для подтверждения записи. 
+                    Оплата производится на месте в день посещения.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <div className="flex gap-3 pt-2">
+              <Button onClick={handleBookingSubmit} className="flex-1" size="lg">
+                <Icon name="Check" className="mr-2" size={20} />
+                Отправить заявку
+              </Button>
+              <Button onClick={() => setIsBookingOpen(false)} variant="outline" size="lg">
+                Отмена
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
